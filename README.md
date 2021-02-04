@@ -1,1 +1,2 @@
-# 337HW1
+# gg-project-master
+Golden Globe Project Master
