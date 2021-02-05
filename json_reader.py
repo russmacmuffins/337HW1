@@ -48,7 +48,7 @@ OFFICIAL_AWARDS_1819 = ['best motion picture - drama', 'best motion picture - mu
                         'best performance by an actress in a supporting role in a series, limited series or motion picture made for television',
                         'best performance by an actor in a supporting role in a series, limited series or motion picture made for television',
                         'cecil b. demille award']
-remove_words = ['-', 'best', 'performance']
+remove_words = ['-', 'best', 'performance', 'award']
 
 filtered_1315 = []
 for award in OFFICIAL_AWARDS_1315:
@@ -83,11 +83,15 @@ def tokenize(tweet):
     return sentences
 
 
-def get_contains(tweets, word):
+def get_contains(tweets, word1, word2):
     A = []
     for t in tweets:
-        if t.find(word) != -1:
-            A.append(t)
+        if t.find(word1) != -1:
+            if word2 and t.find(word2) != -1: # we have a word2 and it matches
+                A.append(t)
+            elif not word2:  # we don't have word2
+                A.append(t)
+
 
     return A
 
@@ -129,12 +133,12 @@ def most_common_name(tweets, award):
 
     for i in range(len(tweets)):
         t = tweets[i].lower().split()  # nltk.word_tokenize(tweets[i])
-        if "wins" not in t:
+        if "wins" not in t:  # for some reason (probably punctuation), this is necessary
             continue
-        if t[0] == "rt":
+        if t[0] == "rt":  # remove retweets -- they're not very informative, and they end up tallying higher than informative ones
             continue
         i = t.index("wins")
-        name = t[:i]
+        name = t[:i]  # find the words before "wins"
         for w in name:
             if w in banned or w in stop_words or len(w) < 2:
                 name.remove(w)
@@ -155,19 +159,49 @@ def most_common_name(tweets, award):
 
     return mx_key
 
-gwins = get_contains(tweets, "wins")
-gbest = get_contains(gwins, "best")
-gdirector = get_contains(gbest, "director")
-gactress= get_contains(gbest, "actress")
-gmp = get_contains(gactress, "motion picture")
-gdrama = get_contains(gmp, "drama")
-print(most_common_name(gdrama, OFFICIAL_AWARDS_1315[1]))
-#print(most_common_name(gdirector, OFFICIAL_AWARDS_1315[11]))
-
 
 def intersect(lst1, lst2):  # using sets would be faster, but we can't because they remove duplicates
     lst3 = [t for t in lst1 if t in lst2]
     return lst3
+
+# gwins = get_contains(tweets, "wins")
+gbest = get_contains(tweets, "wins", "best")
+gdirector = get_contains(gbest, "director", None)
+gactress= get_contains(gbest, "actress", None)
+gmp = get_contains(gbest, "motion picture", None)
+gdrama = get_contains(gbest, "drama", None)
+
+mp_drama = intersect(gmp, gdrama) # this way we can re-use things like "actress" for the other categories
+actress_mp_drama = intersect(gactress, mp_drama) 
+
+
+def filter_tweets_by_award(award, tweetset): 
+    award_tweets = tweetset
+    for i, keyword in enumerate(award):
+        # this is probably not necessary but i wanted to keep these as one phrase in the search
+        if keyword == "motion" and len(award) > i+1:
+            if award[i+1] == "picture":
+                continue
+        if keyword == "picture" and i > 0:
+            if award[i-1] == "motion":
+                award_tweets = get_contains(award_tweets, "motion picture", None)
+        else:
+            award_tweets = get_contains(award_tweets, keyword, None)
+    return award_tweets
+
+def winner_names_from_awards():
+    for i, award in enumerate(filtered_1315):
+        print(OFFICIAL_AWARDS_1315[i])
+        print(most_common_name(filter_tweets_by_award(filtered_1315[i], gbest), filtered_1315[i]))
+
+winner_names_from_awards()
+
+# print(most_common_name(filter_tweets_by_award(filtered_1315[1], gbest), OFFICIAL_AWARDS_1315[1]))
+
+# print(most_common_name(actress_mp_drama, OFFICIAL_AWARDS_1315[1]))
+# print(most_common_name(gdirector, OFFICIAL_AWARDS_1315[11]))
+
+
 
 
 1 + 1
