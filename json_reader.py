@@ -68,7 +68,7 @@ def get_tweets(pathname):
 
     for i in range(len(data)):
         t = data[i]['text']
-        tweets.append(t.lower())
+        tweets.append(t.lower())  # all the tweets are all-lowercase
 
     return tweets
 
@@ -83,7 +83,7 @@ def tokenize(tweet):
     return sentences
 
 
-def get_contains(tweets, word1, word2):
+def get_contains(tweets, word1, word2):  # i added another input, potentially to help with efficiency down the road
     A = []
     for t in tweets:
         if t.find(word1) != -1:
@@ -136,7 +136,8 @@ def most_common_name(tweets, award):
         if "wins" not in t:  # for some reason (probably punctuation), this is necessary
             continue
         if t[0] == "rt":  # remove retweets -- they're not very informative, and they end up tallying higher than informative ones
-            continue
+            continue        # i could see these being more useful when there are fewer tweets to choose from, though
+
         i = t.index("wins")
         name = t[:i]  # find the words before "wins"
         for w in name:
@@ -145,7 +146,7 @@ def most_common_name(tweets, award):
 
         name_string = ' '.join([str(elem) for elem in name])
 
-        if name_string in d:
+        if name_string in d:        # ok, from here i want to find a way to get the most common substrings from these most common name strings
             d[name_string] = d[name_string] + 1
         else:
             d[name_string] = 1
@@ -167,13 +168,6 @@ def intersect(lst1, lst2):  # using sets would be faster, but we can't because t
 # gwins = get_contains(tweets, "wins")
 gbest = get_contains(tweets, "wins", "best")
 gdirector = get_contains(gbest, "director", None)
-gactress= get_contains(gbest, "actress", None)
-gmp = get_contains(gbest, "motion picture", None)
-gdrama = get_contains(gbest, "drama", None)
-
-mp_drama = intersect(gmp, gdrama) # this way we can re-use things like "actress" for the other categories
-actress_mp_drama = intersect(gactress, mp_drama) 
-
 
 def filter_tweets_by_award(award, tweetset): 
     award_tweets = tweetset
@@ -192,7 +186,7 @@ def filter_tweets_by_award(award, tweetset):
 def winner_names_from_awards():
     for i, award in enumerate(filtered_1315):
         print(OFFICIAL_AWARDS_1315[i])
-        print(most_common_name(filter_tweets_by_award(filtered_1315[i], gbest), filtered_1315[i]))
+        print(most_common_name(filter_tweets_by_award(OFFICIAL_AWARDS_1315[i], gbest), OFFICIAL_AWARDS_1315[i]))
 
 winner_names_from_awards()
 
