@@ -16,6 +16,8 @@ def get_tweets(pathname):
     for i in range(len(data)):
         tweets.append(data[i]['text'])
 
+    tweets = [t.lower() for t in tweets]
+
     return tweets
 
 
