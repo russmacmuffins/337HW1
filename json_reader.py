@@ -1,6 +1,6 @@
 import json
 import nltk
-nltk.download('stopwords')
+#nltk.download('stopwords')
 from nltk.corpus import stopwords
 
 stop_words = set(stopwords.words('english'))
@@ -67,7 +67,8 @@ def get_tweets(pathname):
         data = json.load(f)
 
     for i in range(len(data)):
-        tweets.append(data[i]['text'])
+        t = data[i]['text']
+        tweets.append(t.lower())
 
     return tweets
 
@@ -154,14 +155,14 @@ def most_common_name(tweets, award):
 
     return mx_key
 
-for t in tweets:
-    if t[:2] == "rt":
-        tweets.remove(t)
-
 gwins = get_contains(tweets, "wins")
 gbest = get_contains(gwins, "best")
 gdirector = get_contains(gbest, "director")
-print(most_common_name(gdirector, OFFICIAL_AWARDS_1315[11]))
+gactress= get_contains(gbest, "actress")
+gmp = get_contains(gactress, "motion picture")
+gdrama = get_contains(gmp, "drama")
+print(most_common_name(gdrama, OFFICIAL_AWARDS_1315[1]))
+#print(most_common_name(gdirector, OFFICIAL_AWARDS_1315[11]))
 
 
 def intersect(lst1, lst2):  # using sets would be faster, but we can't because they remove duplicates
