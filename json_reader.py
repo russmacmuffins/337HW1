@@ -1,6 +1,6 @@
 import json
 import nltk
-#nltk.download('stopwords')
+nltk.download('stopwords')
 from nltk.corpus import stopwords
 
 stop_words = set(stopwords.words('english'))
