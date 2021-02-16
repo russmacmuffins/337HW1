@@ -176,7 +176,7 @@ def most_common_host(tweets, award):
             continue  # i could see these being more useful when there are fewer tweets to choose from, though
 
         i = t.index("hosting")
-        name = t[:i]  # find the words before "wins"
+        name = t[:i]  # find the words before "hosting"
         for w in name:
             if w in banned or w in stop_words or len(w) < 2:
                 name.remove(w)
@@ -204,10 +204,18 @@ def get_host(tweets):
     # tweet_bank = relevant.extend(relevant2)
     host_name = most_common_host(relevant2, "hosting")
 
+    # formatting answer to be two strings with no &amp
+    if '&amp;' in host_name:
+        names = host_name.split()
+        # reversing the order of the names, bc was geting 'tina fey' 'amy poehler' but this might not be necessary
+        name1 = names[3] + ' ' + names[4]
+        name2 = names[0] + ' ' + names[1]
+        host_name = [name1, name2]
+
     return host_name
 
 
-# print(get_host(tweets))
+print(get_host(tweets))
 
 def intersect(lst1, lst2):  # using sets would be faster, but we can't because they remove duplicates
     lst3 = [t for t in lst1 if t in lst2]
