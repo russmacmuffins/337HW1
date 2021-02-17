@@ -63,7 +63,6 @@ def is_similar(word, word_list):
   for i in range(len(word_list)):
     east = is_in(word_list[i], word)
     west = is_in(word, word_list[i])
-    print(east, west)
     if (east):
       out[i] = word
       return out
@@ -104,7 +103,6 @@ def awards_get(tweets):
     remove_banned(awards, banned)
     awards = filter_noise(awards)
     final = longest_discrete(awards)
-    print(final)
     return final
 
 
