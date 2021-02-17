@@ -5,7 +5,7 @@ from nltk.collocations import *
 from nltk import ngrams
 from collections import Counter
 
-
+tweets = get_tweets("gg2013.json")
 
 #removes all words before the word for (inc)
 def clean_awards(awards):
@@ -76,9 +76,21 @@ def longest_discrete(awards):
   finalized = []
   for i in awards:
     finalized = is_similar(i, finalized)
-  return finalized[:26]
+  finalized = compress(finalized)
+  finalized.sort(key=sizeify)
+  return finalized[int((len(finalized)/2)) - 13:(int(len(finalized)/2)) + 13]
       
+def sizeify(word):
+  return len(word)
 
+def compress(a):
+  seen = set()
+  result = []
+  for item in a:
+    if item not in seen:
+      seen.add(item)
+      result.append(item)
+  return result
 
 def awards_get(tweets):
     awards = []
@@ -91,5 +103,7 @@ def awards_get(tweets):
     #remove_banned(awards, banned)
     awards = filter_noise(awards)
     final = longest_discrete(awards)
+    print(final)
     return final
 
+awards_get(tweets)
