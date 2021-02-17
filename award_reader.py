@@ -29,7 +29,7 @@ def remove_banned(awards, banned):
         
 def filter_noise(awards):
   new = []
-  stop_signal = [".", "#", ",","?", "for", "!", ":", "goes to"]
+  stop_signal = [".", "#", ",","?", "for", "!", ":", "goes to", "should", "at", "@", "like"]
   for i in range(len(awards)):
     lowest = 100
     for j in stop_signal:
@@ -65,8 +65,11 @@ def is_similar(word, word_list):
   for i in range(len(word_list)):
     east = is_in(word_list[i], word)
     west = is_in(word, word_list[i])
-    if ((east and west) and (len(word_list[i]) < len(word))):
+    print(east, west)
+    if (east):
       out[i] = word
+      return out
+    elif (west):
       return out
   out.append(word)
   return out  
@@ -78,7 +81,7 @@ def longest_discrete(awards):
     finalized = is_similar(i, finalized)
   finalized = compress(finalized)
   finalized.sort(key=sizeify)
-  return finalized[int((len(finalized)/2)) - 13:(int(len(finalized)/2)) + 13]
+  return finalized[-26:]
       
 def sizeify(word):
   return len(word)
@@ -99,11 +102,12 @@ def awards_get(tweets):
     relevant = get_contains(tweets," nominated for best", "goldenglobes")
     awards.extend(relevant)
     awards = clean_awards(awards)
-    #banned = ["something", "anything", "everything", "oscar", "golden globe", "academy award", "academyaward", "emmy", "awards"]
-    #remove_banned(awards, banned)
+    banned = ["something", "anything", "everything", "oscar", "golden globe", "academy award", "academyaward", "emmy", "awards"]
+    remove_banned(awards, banned)
     awards = filter_noise(awards)
     final = longest_discrete(awards)
     print(final)
     return final
 
 awards_get(tweets)
+
