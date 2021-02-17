@@ -19,7 +19,8 @@ def get_hosts(year):
 def get_awards(year):
     '''Awards is a list of strings. Do NOT change the name
     of this function or what it returns.'''
-    awards = OFFICIAL_AWARDS
+    tweets = get_tweets(year)
+    awards = awards_get(tweets)
     return awards
 
 def get_nominees(year):
