@@ -5,8 +5,6 @@ from nltk.collocations import *
 from nltk import ngrams
 from collections import Counter
 
-tweets = get_tweets("gg2013.json")
-
 #removes all words before the word for (inc)
 def clean_awards(awards):
   new = []
@@ -109,5 +107,4 @@ def awards_get(tweets):
     print(final)
     return final
 
-awards_get(tweets)
 
