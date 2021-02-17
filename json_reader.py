@@ -307,7 +307,7 @@ def all_nominees():
         print(nominee_names_from_award(OFFICIAL_AWARDS_1315[i]))
 
 
-all_nominees()
+#all_nominees()
 
 
 # strategy to work on:

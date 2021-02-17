@@ -29,9 +29,8 @@ def get_nominees(year):
     '''Nominees is a dictionary with the hard coded award
     names as keys, and each entry a list of strings. Do NOT change
     the name of this function or what it returns.'''
-    # Your code here
-    fres = get_answers(year)
-    nominees = {award: fres['award_data'][award]['nominees'] for award in OFFICIAL_AWARDS}
+    tweets = get_tweets("gg" + year + ".json")
+    nominees = get_nom(tweets)
     return nominees
 
 def get_winner(year):

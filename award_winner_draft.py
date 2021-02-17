@@ -40,6 +40,6 @@ def get_hosts(tweets):
     print(host_names)
     return host_names
 
-get_hosts(tweets)
+#get_hosts(tweets)
 
 1+1
