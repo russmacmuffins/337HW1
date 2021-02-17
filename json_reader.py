@@ -48,7 +48,7 @@ OFFICIAL_AWARDS_1819 = ['best motion picture - drama', 'best motion picture - mu
                         'best performance by an actress in a supporting role in a series, limited series or motion picture made for television',
                         'best performance by an actor in a supporting role in a series, limited series or motion picture made for television',
                         'cecil b. demille award']
-remove_words = ['-', 'best', 'performance', 'award']
+remove_words = ['-', 'best', 'performance', 'award', 'role', 'made']
 
 '''
 filtered_1315_1 = []
@@ -258,8 +258,17 @@ def filter_tweets_by_award(award, tweetset):
                 movie = get_contains(award_tweets, "movie", None)
                 film = get_contains(award_tweets, "film", None)
                 # mp = get_contains(award_tweets, "motion picture", None)
-                
                 award_tweets = movie + film + picture
+
+        if keyword == "series" and len(award) > i + 1:
+            if award[i + 1] == "mini-series":
+                continue
+        if keyword == "mini-series" and i > 0:
+            m1 = get_contains(award_tweets, "miniseries", None)
+            m2 = get_contains(award_tweets, "mini series", None)
+            m3 = get_contains(award_tweets, "mini-series", None)
+            award_tweets = m1 + m2 + m3
+
         if keyword == "television":
             TV = get_contains(award_tweets, "tv", None)
             television = get_contains(award_tweets, "television", None)
@@ -279,14 +288,14 @@ def winner_names_from_awards(award_list, tweetset):
     for i, award in enumerate(filtered_award_list):
         winner = most_common_name(filter_tweets_by_award(filtered_award_list[i], tweets_best), award_list[i])
         winners[award_list[i]] = winner if winner else ' '
-       # print(' '.join(filtered_award_list[i]))
+       # print(filtered_award_list[i])
        # print(most_common_name(filter_tweets_by_award(filtered_award_list[i], gbest), award_list[i]))
         # print(most_common_name(filter_tweets_by_award(filtered_1315[i], gbest), filtered_1315[i]))
     
     return winners
 
 
-# winner_names_from_awards(OFFICIAL_AWARDS_1315)
+# winner_names_from_awards(OFFICIAL_AWARDS_1315, tweets)
 
 def get_nominees(tweets, award, prev_name):
     # get the most common name before "nominated" and the award
