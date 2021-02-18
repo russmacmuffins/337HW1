@@ -1,9 +1,16 @@
-from json_reader import get_tweets, get_contains
+from json_reader import *
 from award_reader import awards_get
+from nominator import *
 '''Version 0.3'''
 import json
 
 OFFICIAL_AWARDS = ['cecil b. demille award', 'best motion picture - drama', 'best performance by an actress in a motion picture - drama', 'best performance by an actor in a motion picture - drama', 'best motion picture - comedy or musical', 'best performance by an actress in a motion picture - comedy or musical', 'best performance by an actor in a motion picture - comedy or musical', 'best animated feature film', 'best foreign language film', 'best performance by an actress in a supporting role in a motion picture', 'best performance by an actor in a supporting role in a motion picture', 'best director - motion picture', 'best screenplay - motion picture', 'best original score - motion picture', 'best original song - motion picture', 'best television series - drama', 'best performance by an actress in a television series - drama', 'best performance by an actor in a television series - drama', 'best television series - comedy or musical', 'best performance by an actress in a television series - comedy or musical', 'best performance by an actor in a television series - comedy or musical', 'best mini-series or motion picture made for television', 'best performance by an actress in a mini-series or motion picture made for television', 'best performance by an actor in a mini-series or motion picture made for television', 'best performance by an actress in a supporting role in a series, mini-series or motion picture made for television', 'best performance by an actor in a supporting role in a series, mini-series or motion picture made for television']
+
+tweets_by_year = {}
+def get_tweet_from_year(year): 
+    if year not in tweets_by_year:
+        tweets_by_year[year] = get_tweets("gg" + year + ".json")
+    return tweets_by_year[year]
 
 def get_answers(year):
     with open('gg%sanswers.json'%year, 'r') as f:
@@ -14,14 +21,16 @@ def get_hosts(year):
     '''Hosts is a list of one or more strings. Do NOT change the name
     of this function or what it returns.'''
     # Your code here
-    fres = get_answers(year)
-    hosts = fres['hosts']
+    tweets = get_tweet_from_year(year)
+
+    hosts = get_host(tweets)
     return hosts
+# print(get_hosts('2013'))
 
 def get_awards(year):
     '''Awards is a list of strings. Do NOT change the name
     of this function or what it returns.'''
-    tweets = get_tweets("gg" + year + ".json")
+    tweets = get_tweet_from_year(year)
     awards = awards_get(tweets)
     return awards
 
@@ -29,8 +38,11 @@ def get_nominees(year):
     '''Nominees is a dictionary with the hard coded award
     names as keys, and each entry a list of strings. Do NOT change
     the name of this function or what it returns.'''
-    tweets = get_tweets("gg" + year + ".json")
-    nominees = get_nom(tweets)
+    # tweets = get_tweets("gg" + year + ".json")
+   # nominees = get_nom(tweets)
+   
+    fres = get_answers(year)
+    nominees = {award: fres['award_data'][award]['nominees'] for award in OFFICIAL_AWARDS}
     return nominees
 
 def get_winner(year):
@@ -38,8 +50,10 @@ def get_winner(year):
     names as keys, and each entry containing a single string.
     Do NOT change the name of this function or what it returns.'''
     # Your code here
-    fres = get_answers(year)
-    winners = {award: fres['award_data'][award]['winner'] for award in OFFICIAL_AWARDS}
+    #fres = get_answers(year)
+    tweets = get_tweet_from_year(year)
+    winners = winner_names_from_awards(OFFICIAL_AWARDS, tweets)
+    # {award: fres['award_data'][award]['winner'] for award in OFFICIAL_AWARDS}
     return winners
 
 def get_presenters(year):

@@ -1,5 +1,7 @@
 import json
 import nltk
+import string
+
 nltk.download('stopwords')
 from nltk.corpus import stopwords
 
@@ -48,15 +50,21 @@ OFFICIAL_AWARDS_1819 = ['best motion picture - drama', 'best motion picture - mu
                         'best performance by an actress in a supporting role in a series, limited series or motion picture made for television',
                         'best performance by an actor in a supporting role in a series, limited series or motion picture made for television',
                         'cecil b. demille award']
-remove_words = ['-', 'best', 'performance', 'award']
+remove_words = ['-', 'best', 'performance', 'award', 'role', 'made']
 
-filtered_1315 = []
-for award in OFFICIAL_AWARDS_1315:
-    filtered_award = []
-    for w in award.split():
-        if w not in stop_words and w not in remove_words:
-            filtered_award.append(w)
-    filtered_1315.append(filtered_award)
+
+def filter_awards(award_set):
+    filtered = []
+    for award in award_set:
+        new_award = []
+        for w in award.split():
+            if w not in stop_words and w not in remove_words:
+                new_award.append(w.translate(str.maketrans('', '', string.punctuation)))
+        filtered.append(new_award)
+    return filtered
+
+
+filtered_1315 = filter_awards(OFFICIAL_AWARDS_1315)
 
 
 # print(filtered_1315)
@@ -74,6 +82,7 @@ def get_tweets(pathname):
 
 
 tweets = get_tweets('gg2013.json')
+tweets15 = get_tweets('gg2015.json')
 
 
 def tokenize(tweet):
@@ -124,42 +133,105 @@ def get_most_common(tweets, num, award):
 # because after the actual name the rest of the results would be less common
 
 # award input here will be from the filtered list, and awards are already .split() in that list
-def most_common_name(tweets, award):
+def most_common_name(tweetset, award):
     d = {}
-    banned = ['best', 'wins', 'GoldenGlobes', 'Golden', 'Globes', 'Globe', 'goldenglobes']
-    for a in award:
+    d2 = {}
+    banned = ['best', 'wins', 'golden globes', 'golden', 'globes', 'globe', 'goldenglobes']
+    award_lst = award.split()
+    for a in award_lst:
         banned.append(a)
 
-    for i in range(len(tweets)):
-        t = tweets[i].lower().split()  # nltk.word_tokenize(tweets[i])
-        if "wins" not in t:  # for some reason (probably punctuation), this is necessary
-            continue
-        if t[
-            0] == "rt":  # remove retweets -- they're not very informative, and they end up tallying higher than informative ones
-            continue  # i could see these being more useful when there are fewer tweets to choose from, though
+    ############# set up tweet set
+    tweets = tweetset
 
-        i = t.index("wins")
-        name = t[:i]  # find the words before "wins"
-        for w in name:
-            if w in banned or w in stop_words or len(w) < 2:
-                name.remove(w)
+    if "best" not in award:  # for things like cecil b. demille and other non "best" awards
+        tweets = get_contains(tweetset, "wins", "award")
+        tweets2 = get_contains(tweetset, "goes to", "award")
+    else:
+        tweets = get_contains(tweetset, "wins", "best")
+        tweets2 = get_contains(tweetset, "goes to", "best")
 
-        name_string = ' '.join([str(elem) for elem in name])
+    ############ determine if we're looking for a person's name
+    person = False
+    if any(job in award for job in ("actor", "actress", "director")):
+        person = True
 
-        if name_string in d:  # ok, from here i want to find a way to get the most common substrings from these most common name strings
-            d[name_string] = d[name_string] + 1
+    ########### get popular phrases and count their occurrence
+    def phrase_from_index(find, narrowed_tweets, before, dict):
+        for i in range(len(narrowed_tweets)):
+            t = narrowed_tweets[i].lower().split()  # nltk.word_tokenize(tweets[i])
+            if find not in t:  # for some reason (probably punctuation), this is necessary
+                continue
+            if "rt" in t:  # remove retweets -- they're not very informative, and they end up tallying higher than informative ones
+                continue  # i could see these being more useful when there are fewer tweets to choose from, though
+
+            i = t.index(find)
+            if before:
+                name = t[:i]  # find the words before "wins"
+            else:
+                name = t[i+2:]  # find the words after "goes to"
+            for w in name:
+                #if person:  # no stopwords in people's names, but they are allowed in movie names etc ("THE shape OF water")
+                 #   if w in banned or len(
+                  #          w) < 2 or w in stop_words:  # unfortunately for don cheadle, "don" is a stopword. Rip
+                   #     name.remove(w)
+                #else:
+                if w in banned or len(w) < 2:
+                    name.remove(w)
+            ############ convert to string and add to dict counter
+            name_string = ' '.join([str(elem) for elem in name])
+            name_string = name_string.translate(str.maketrans('', '', string.punctuation))
+            # people's names can have punctuation (', -, etc) but movies probably shouldn't
+            if name_string in dict:  # ok, from here i want to find a way to get the most common substrings from these most common name strings
+                dict[name_string] = dict[name_string] + 1
+            else:
+                dict[name_string] = 1
+
+    phrase_from_index("wins", tweets, True, d)
+    phrase_from_index("goes", tweets2, False, d2)
+
+    def most_common(dict):
+        mx = -1
+        mx_key = None
+        for key in dict:
+            if dict[key] > mx:
+                mx_key = key
+                mx = dict[key]
+        return mx_key
+
+    top1 = most_common(d)
+    top2 = most_common(d2)
+    if top1 and top2:
+        common_substring = lcs(top1, top2)  # top1 if d[top1] >= d2[top2] else top2
+        if common_substring and len(common_substring)==1:
+            winner = ''.join(common_substring)
         else:
-            d[name_string] = 1
+            winner = top1 if d[top1] >= d2[top2] else top2  # if it's a tie, go to the answer before "wins" 
+    elif not top1 and not top2:
+        winner = ' '
+    else:
+        winner = top1 if top1 else top2
+    return top1
 
-    mx = -1
-    mx_key = None
-    for key in d:
-        if d[key] > mx:
-            mx_key = key
-            mx = d[key]
+def lcs(S,T):  # credit for this function: https://www.bogotobogo.com/python/python_longest_common_substring_lcs_algorithm_generalized_suffix_tree.php
+    m = len(S)
+    n = len(T)
+    counter = [[0]*(n+1) for x in range(m+1)]
+    longest = 0
+    lcs_set = set()
+    for i in range(m):
+        for j in range(n):
+            if S[i] == T[j]:
+                c = counter[i][j] + 1
+                counter[i+1][j+1] = c
+                if c > longest:
+                    lcs_set = set()
+                    longest = c
+                    lcs_set.add(S[i-c+1:i+1])
+                elif c == longest:
+                    lcs_set.add(S[i-c+1:i+1])
 
-    return mx_key
-
+    return lcs_set
 
 def most_common_host(tweets, award):
     d = {}
@@ -171,13 +243,13 @@ def most_common_host(tweets, award):
         t = tweets[i].lower().split()  # nltk.word_tokenize(tweets[i])
         if "hosting" not in t:  # for some reason (probably punctuation), this is necessary
             continue
-        if t[
-            0] == "rt":  # remove retweets -- they're not very informative, and they end up tallying higher than informative ones
+        if t[0] == "rt":  # remove retweets -- they're not very informative, and they end up tallying higher than informative ones
             continue  # i could see these being more useful when there are fewer tweets to choose from, though
 
         i = t.index("hosting")
         name = t[:i]  # find the words before "hosting"
         for w in name:
+            if w == 'and': continue
             if w in banned or w in stop_words or len(w) < 2:
                 name.remove(w)
 
@@ -204,18 +276,19 @@ def get_host(tweets):
     # tweet_bank = relevant.extend(relevant2)
     host_name = most_common_host(relevant2, "hosting")
 
+    name_lst = []  # we have to return a list per the autograder
+
     # formatting answer to be two strings with no &amp
     if '&amp;' in host_name:
-        names = host_name.split()
-        # reversing the order of the names, bc was geting 'tina fey' 'amy poehler' but this might not be necessary
-        name1 = names[3] + ' ' + names[4]
-        name2 = names[0] + ' ' + names[1]
-        host_name = [name1, name2]
+        name_lst = [x.strip() for x in host_name.split('&amp;')]
+    elif 'and' in host_name:
+        name_lst = [x.strip() for x in host_name.split('and')]
+    else:
+        name_lst.append(host_name)
+    return name_lst
 
-    return host_name
 
-
-print(get_host(tweets))
+# print(get_host(tweets))
 
 def intersect(lst1, lst2):  # using sets would be faster, but we can't because they remove duplicates
     lst3 = [t for t in lst1 if t in lst2]
@@ -229,28 +302,64 @@ gdirector = get_contains(gbest, "director", None)
 gnominated = get_contains(tweets, "nominated", "best")
 
 
-def filter_tweets_by_award(award, tweetset):
+def filter_tweets_by_award(award,
+                           tweetset):  # this function narrows down the tweet set to relevant tweets based on award names
     award_tweets = tweetset
     for i, keyword in enumerate(award):
-        # this is probably not necessary but i wanted to keep these as one phrase in the search
         if keyword == "motion" and len(award) > i + 1:
             if award[i + 1] == "picture":
                 continue
         if keyword == "picture" and i > 0:
             if award[i - 1] == "motion":
-                award_tweets = get_contains(award_tweets, "motion picture", None)
+                picture = get_contains(award_tweets, "picture",
+                                       None)  # no "motion" here because i think "best picture" is a likely phrase
+                movie = get_contains(award_tweets, "movie", None)
+                film = get_contains(award_tweets, "film", None)
+                # mp = get_contains(award_tweets, "motion picture", None)  # deleted for overlap with above
+                award_tweets = movie + film + picture
+
+        if keyword == "series" and len(award) > i + 1:
+            if award[
+                i + 1] == "miniseries":  # v few tweets will include both series and miniseries, so if miniseries is in the award, add both options
+                continue
+        if keyword == "miniseries" and i > 0:
+            s1 = None
+            if award[i - 1] == "series":
+                s1 = get_contains(award_tweets, "series", None)
+            m1 = get_contains(award_tweets, "miniseries", None)
+            m2 = get_contains(award_tweets, "mini series", None)
+            m3 = get_contains(award_tweets, "mini-series", None)
+            award_tweets = m1 + m2 + m3 if not s1 else m1 + m2 + m3 + s1
+
+        if keyword == "television":
+            TV = get_contains(award_tweets, "tv", None)
+            television = get_contains(award_tweets, "television", None)
+            award_tweets = TV + television
         else:
             award_tweets = get_contains(award_tweets, keyword, None)
     return award_tweets
 
 
-def winner_names_from_awards():
-    for i, award in enumerate(filtered_1315):
-        print(OFFICIAL_AWARDS_1315[i])
-        print(most_common_name(filter_tweets_by_award(OFFICIAL_AWARDS_1315[i], gbest), OFFICIAL_AWARDS_1315[i]))
+def winner_names_from_awards(award_list, tweetset):
+    winners = dict.fromkeys(award_list)
+
+    filtered_award_list = filter_awards(award_list)
+
+    for i, award in enumerate(filtered_award_list):
+        winner = most_common_name(filter_tweets_by_award(filtered_award_list[i], tweetset), award_list[i])
+        winners[award_list[i]] = winner if winner else ' '
+       # print(filtered_award_list[i])
+        #print(winners[award_list[i]])
+    
+    return winners
 
 
-# winner_names_from_awards()
+#winner_names_from_awards(OFFICIAL_AWARDS_1315, tweets)
+
+#winner_names_from_awards(OFFICIAL_AWARDS_1315, tweets15)
+
+
+# print(winner_names_from_awards(OFFICIAL_AWARDS_1315, tweets))
 
 def get_nominees(tweets, award, prev_name):
     # get the most common name before "nominated" and the award
@@ -307,13 +416,12 @@ def all_nominees():
         print(nominee_names_from_award(OFFICIAL_AWARDS_1315[i]))
 
 
-#all_nominees()
+# all_nominees()
 
 
 # strategy to work on:
 # get candidate answers word by word: affleck + ben affleck + etc etc
 # get the most common candidate across all tweets
-
 
 
 1 + 1

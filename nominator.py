@@ -144,4 +144,4 @@ def get_nom(tweets, awards):
   return final
 
 
-get_nom(tweets, OFFICIAL_AWARDS_1315)
+#get_nom(tweets, OFFICIAL_AWARDS_1315)
