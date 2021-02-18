@@ -40,7 +40,7 @@ def get_tweets_caps(pathname):
 
     return tweets
 
-tweets = get_tweets_caps("gg2013.json")
+#tweets = get_tweets_caps("gg2013.json")
 
 def clean_noms(noms):
   new = []
@@ -57,12 +57,27 @@ def crack_sift(award):
   for i in split:
     if ((i[1] == 'NN' or i[1] == 'NNP') and i[0] != 'performance' and i[0] != 'role' and i[0] != 'motion' and i[0] != 'picture' and i[0] != 'series'):
       out.append(i[0])
-  print(out)
+          #print(out)
   return out
+
+def findBanned(string):
+  banned = ["golden", "globes", "score", "actor", "actress"]
+  if (string[1:] == ''):
+    return False
+  for i in banned:
+    if (string.find(i) != -1):
+      return False
+  return True
+
+def refilter(loStr):
+  for i in range(len(loStr) - 1, -1, -1):
+      if len(loStr[i]) < 5 or loStr[i].find("olden") != -1 or loStr[i].find("lobes") != -1:
+        loStr.pop(i)
+
 
 def get_actor_noms(usable):
   out = {}
-  print(usable)
+  #print(usable)
   tip = type(0)
   for i in usable:
     split = nltk.word_tokenize(i)
@@ -72,15 +87,21 @@ def get_actor_noms(usable):
     for j in split:
       if (j[0] == "RT"):
         cont = -2
-      elif (j[0] == "@"):
-        cont = -1
+      elif ((j[0] == "@") or (j[0] == "#")):
+            if(findBanned(j[0])):
+                if j[0] in out:
+                    out[j[0][1:]] += 1
+                else:
+                    out[j[0][1:]] = 0
+                current = ""
       elif (cont < 0):
         cont += 1
-      elif (cont >= 1 and j[1] != "NNP"):
+      elif ((cont >= 1 and j[1] != "NNP") and findBanned(current)):
         if current in out:
           out[current] += 1
         else:
           out[current] = 0
+        current = ""
       elif (j[1] == "NNP"):
         cont += 1
         current = current + " " + j[0]
@@ -88,7 +109,8 @@ def get_actor_noms(usable):
         current = ""
         cont = 0
   sorter = sorted(out, key=out.get, reverse=True)
-  print(sorter[:5])
+  refilter(sorter)
+#print(sorter[:5])
   return sorter[:5]
 
 def get_film_noms(usable, keys):
@@ -134,13 +156,19 @@ def get_nom(tweets, awards):
   noms = []
   relevant = get_contains(tweets," nom", "goldenglobes")
   noms.extend(relevant)
-  banned = ["congratulations", "Congratulations", "goes to"]
+  relevant = get_contains(tweets," should have", "goldenglobes")
+  noms.extend(relevant)
+  relevant = get_contains(tweets," lost", "goldenglobes")
+  noms.extend(relevant)
+  relevant = get_contains(tweets," hope", "goldenglobes")
+  noms.extend(relevant)
+  relevant = get_contains(tweets," snubbed", "goldenglobes")
+  noms.extend(relevant)
   final = {}
-  noms = clean_noms(noms)
   for i in awards:
     temp = get_award_noms(i, noms)
     final[i] = temp
-  #print(final)
+  print(final)
   return final
 
 
