@@ -55,12 +55,15 @@ def crack_sift(award):
   split = nltk.pos_tag(split)
   out = []
   for i in split:
-    if ((i[1] == 'NN' or i[1] == 'NNP') and i[0] != 'performance'):
+    if ((i[1] == 'NN' or i[1] == 'NNP') and i[0] != 'performance' and i[0] != 'role' and i[0] != 'motion' and i[0] != 'picture' and i[0] != 'series'):
       out.append(i[0])
+  print(out)
   return out
 
 def get_actor_noms(usable):
-  out = set([])
+  out = {}
+  print(usable)
+  tip = type(0)
   for i in usable:
     split = nltk.word_tokenize(i)
     split = nltk.pos_tag(split)
@@ -73,15 +76,20 @@ def get_actor_noms(usable):
         cont = -1
       elif (cont < 0):
         cont += 1
-      elif (cont >= 2 and j[1] != "NNP"):
-        out.add(current)
+      elif (cont >= 1 and j[1] != "NNP"):
+        if current in out:
+          out[current] += 1
+        else:
+          out[current] = 0
       elif (j[1] == "NNP"):
         cont += 1
         current = current + " " + j[0]
       else:
         current = ""
         cont = 0
-  return list(out)
+  sorter = sorted(out, key=out.get, reverse=True)
+  print(sorter[:5])
+  return sorter[:5]
 
 def get_film_noms(usable, keys):
   out = {}
@@ -123,12 +131,16 @@ def get_award_noms(award, tweets):
 
 
 def get_nom(tweets, awards):
+  noms = []
+  relevant = get_contains(tweets," nom", "goldenglobes")
+  noms.extend(relevant)
+  banned = ["congratulations", "Congratulations", "goes to"]
   final = {}
-  noms = clean_noms(tweets)
+  noms = clean_noms(noms)
   for i in awards:
     temp = get_award_noms(i, noms)
-    final[i] = temp[:5]
-  print(final)
+    final[i] = temp
+  #print(final)
   return final
 
 
