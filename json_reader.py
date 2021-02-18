@@ -191,6 +191,7 @@ def most_common_host(tweets, award):
         i = t.index("hosting")
         name = t[:i]  # find the words before "hosting"
         for w in name:
+            if w == 'and': continue
             if w in banned or w in stop_words or len(w) < 2:
                 name.remove(w)
 
@@ -222,10 +223,8 @@ def get_host(tweets):
     # formatting answer to be two strings with no &amp
     if '&amp;' in host_name:
         name_lst = [x.strip() for x in host_name.split('&amp;')]
-        # reversing the order of the names, bc was geting 'tina fey' 'amy poehler' but this might not be necessary
-        # [S.T.] I am changing this because it's not a given that names are two words
-        # name1 = names[3] + ' ' + names[4]
-        # name2 = names[0] + ' ' + names[1]
+    elif 'and' in host_name:
+        name_lst = [x.strip() for x in host_name.split('and')]
     else:
         name_lst.append(host_name)
     return name_lst

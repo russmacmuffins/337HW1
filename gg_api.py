@@ -25,6 +25,7 @@ def get_hosts(year):
 
     hosts = get_host(tweets)
     return hosts
+# print(get_hosts('2013'))
 
 def get_awards(year):
     '''Awards is a list of strings. Do NOT change the name
