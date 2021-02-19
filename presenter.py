@@ -4,7 +4,6 @@ import nltk
 import json
 nltk.download('averaged_perceptron_tagger')
 """
-
 OFFICIAL_AWARDS_1315 = ['cecil b. demille award', 'best motion picture - drama',
                         'best performance by an actress in a motion picture - drama',
                         'best performance by an actor in a motion picture - drama',
@@ -27,22 +26,14 @@ OFFICIAL_AWARDS_1315 = ['cecil b. demille award', 'best motion picture - drama',
                         'best performance by an actor in a mini-series or motion picture made for television',
                         'best performance by an actress in a supporting role in a series, mini-series or motion picture made for television',
                         'best performance by an actor in a supporting role in a series, mini-series or motion picture made for television']
-
-
-
-
 def get_tweets_caps(pathname):
     tweets = []
     with open(pathname, 'r') as f:
         data = json.load(f)
-
     for i in range(len(data)):
         t = data[i]['text']
         tweets.append(t)
-
     return tweets
-
-
 def clean_noms(noms):
   new = []
   for i in noms:
@@ -50,16 +41,11 @@ def clean_noms(noms):
       continue
     new.append(i)
   return new
-
-
-
 def run():
     tweets = get_tweets_caps("gg2013.json")
     relevant = get_contains(tweets," present","best")
     1+1
-
 run()
-
 """
 
 OFFICIAL_AWARDS_1315 = ['cecil b. demille award', 'best motion picture - drama',
@@ -100,9 +86,9 @@ def get_tweets_caps(pathname):
 
 
 
-def clean_noms(noms):
+def clean_pres(pres):
   new = []
-  for i in noms:
+  for i in pres:
     if i.find(" rt ") != -1 or i.find(" rt") != -1 or i[0:3] == "rt ": 
       continue
     new.append(i)
@@ -133,7 +119,7 @@ def refilter(loStr):
         loStr.pop(i)
 
 
-def get_actor_noms(usable):
+def get_actor_pres(usable):
   out = {}
   #print(usable)
   tip = type(0)
@@ -171,7 +157,7 @@ def get_actor_noms(usable):
 #print(sorter[:5])
   return sorter[:5]
 
-def get_film_noms(usable, keys):
+def get_film_pres(usable, keys):
   out = {}
   seg_bank = {" - ", ":", "goes to", ", ", " (", "!", "#"}
   for i in usable:
@@ -192,7 +178,7 @@ def get_film_noms(usable, keys):
 
 
 
-def get_award_noms(award, tweets):
+def get_award_pres(award, tweets):
   keys = crack_sift(award)
   usable = []
   isactor = False
@@ -205,15 +191,15 @@ def get_award_noms(award, tweets):
         isactor = True
     if boll:
       usable.append(i)
-  return get_actor_noms(usable)
+  return get_actor_pres(usable)
     
     
 
 
-def get_nom(tweets, awards):
-  noms = []
+def get_pres(tweets, awards):
+  pres = []
   relevant = get_contains(tweets,"present", "goldenglobes")
-  noms.extend(relevant)
+  pres.extend(relevant)
   """
   relevant = get_contains(tweets," should have", "goldenglobes")
   noms.extend(relevant)
@@ -226,11 +212,11 @@ def get_nom(tweets, awards):
   """
   final = {}
   for i in awards:
-    temp = get_award_noms(i, noms)
+    temp = get_award_pres(i, pres)
     final[i] = temp
   print(final)
   return final
 
 
 tweets = get_tweets_caps("gg2013.json")
-get_nom(tweets, OFFICIAL_AWARDS_1315)
+get_pres(tweets, OFFICIAL_AWARDS_1315)
