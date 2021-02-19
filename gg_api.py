@@ -1,5 +1,6 @@
 from json_reader import *
 from award_reader import awards_get
+from pprint import pprint
 from nominator import *
 '''Version 0.3'''
 import json
@@ -78,6 +79,42 @@ def main():
     run when grading. Do NOT change the name of this function or
     what it returns.'''
     # Your code here
+    # f = open("human_readable_answers.txt", "w")
+    overall = ["hosts", "awards"]
+    specific = ["nominees", "presenters", "winner"]
+    
+    years = {"2013"}#, "2015"}
+    new = input("Enter years to check, separated by a space. Ex: 2013 2015\n")
+    for y in new.split():
+        years.add(y)
+
+    for year in years:
+        gg_nominees = get_nominees(year)
+        gg_presenters = get_presenters(year)
+        gg_winner = get_winner(year)
+
+        print('Awards %s:' % year)
+
+        for cat in overall:
+            results = globals()['get_%s' % cat](year)
+            pprint('%s: %s' % (cat.title(), ', '.join(results).title()) )
+            # f.write( )
+        
+        for award in OFFICIAL_AWARDS:
+            print('\nAward: %s' % award.title())
+            person = False
+            if any(job in award for job in ("actor", "actress", "director")):
+                person = True
+
+            for cat in specific:
+                results = locals()['gg_%s' % cat][award]
+                if isinstance(results, list): 
+                    results = ', '.join(results)
+                print('%s: %s' % (cat.title(), results.title()) )
+
+        
+            
+
     return
 
 if __name__ == '__main__':

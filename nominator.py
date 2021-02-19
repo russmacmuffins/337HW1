@@ -168,7 +168,7 @@ def get_nom(tweets, awards):
   for i in awards:
     temp = get_award_noms(i, noms)
     final[i] = temp
-  print(final)
+  # print(final)
   return final
 
 

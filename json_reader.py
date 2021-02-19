@@ -71,12 +71,15 @@ filtered_1315 = filter_awards(OFFICIAL_AWARDS_1315)
 
 def get_tweets(pathname):
     tweets = []
-    with open(pathname, 'r') as f:
-        data = json.load(f)
-
-    for i in range(len(data)):
-        t = data[i]['text']
-        tweets.append(t.lower())  # all the tweets are all-lowercase
+    try: 
+        with open(pathname, 'r') as f:
+            data = json.load(f)
+        
+        for i in range(len(data)):
+            t = data[i]['text']
+            tweets.append(t.lower())  # all the tweets are all-lowercase
+    except IOError:
+        print("File %s not found." % pathname)
 
     return tweets
 
@@ -182,7 +185,7 @@ def most_common_name(tweetset, award):
             name_string = ' '.join([str(elem) for elem in name])
             name_string = name_string.translate(str.maketrans('', '', string.punctuation))
             # people's names can have punctuation (', -, etc) but movies probably shouldn't
-            if name_string in dict:  # ok, from here i want to find a way to get the most common substrings from these most common name strings
+            if name_string in dict:  
                 dict[name_string] = dict[name_string] + 1
             else:
                 dict[name_string] = 1
@@ -211,7 +214,7 @@ def most_common_name(tweetset, award):
         winner = ' '
     else:
         winner = top1 if top1 else top2
-    return top1
+    return winner
 
 def lcs(S,T):  # credit for this function: https://www.bogotobogo.com/python/python_longest_common_substring_lcs_algorithm_generalized_suffix_tree.php
     m = len(S)
@@ -315,8 +318,8 @@ def filter_tweets_by_award(award,
                                        None)  # no "motion" here because i think "best picture" is a likely phrase
                 movie = get_contains(award_tweets, "movie", None)
                 film = get_contains(award_tweets, "film", None)
-                # mp = get_contains(award_tweets, "motion picture", None)  # deleted for overlap with above
-                award_tweets = movie + film + picture
+                mp = get_contains(award_tweets, "motion pic", None)  
+                award_tweets = movie + film + picture + mp
 
         if keyword == "series" and len(award) > i + 1:
             if award[
