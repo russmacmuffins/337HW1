@@ -1,8 +1,10 @@
 import json
 import nltk
 import string
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
 
 nltk.download('stopwords')
+nltk.download('vader_lexicon')
 from nltk.corpus import stopwords
 
 stop_words = set(stopwords.words('english'))
@@ -71,12 +73,15 @@ filtered_1315 = filter_awards(OFFICIAL_AWARDS_1315)
 
 def get_tweets(pathname):
     tweets = []
-    with open(pathname, 'r') as f:
-        data = json.load(f)
-
-    for i in range(len(data)):
-        t = data[i]['text']
-        tweets.append(t.lower())  # all the tweets are all-lowercase
+    try: 
+        with open(pathname, 'r') as f:
+            data = json.load(f)
+        
+        for i in range(len(data)):
+            t = data[i]['text']
+            tweets.append(t.lower())  # all the tweets are all-lowercase
+    except IOError:
+        print("File %s not found." % pathname)
 
     return tweets
 
@@ -182,7 +187,7 @@ def most_common_name(tweetset, award):
             name_string = ' '.join([str(elem) for elem in name])
             name_string = name_string.translate(str.maketrans('', '', string.punctuation))
             # people's names can have punctuation (', -, etc) but movies probably shouldn't
-            if name_string in dict:  # ok, from here i want to find a way to get the most common substrings from these most common name strings
+            if name_string in dict:  
                 dict[name_string] = dict[name_string] + 1
             else:
                 dict[name_string] = 1
@@ -211,7 +216,7 @@ def most_common_name(tweetset, award):
         winner = ' '
     else:
         winner = top1 if top1 else top2
-    return top1
+    return winner
 
 def lcs(S,T):  # credit for this function: https://www.bogotobogo.com/python/python_longest_common_substring_lcs_algorithm_generalized_suffix_tree.php
     m = len(S)
@@ -315,8 +320,8 @@ def filter_tweets_by_award(award,
                                        None)  # no "motion" here because i think "best picture" is a likely phrase
                 movie = get_contains(award_tweets, "movie", None)
                 film = get_contains(award_tweets, "film", None)
-                # mp = get_contains(award_tweets, "motion picture", None)  # deleted for overlap with above
-                award_tweets = movie + film + picture
+                mp = get_contains(award_tweets, "motion pic", None)  
+                award_tweets = movie + film + picture + mp
 
         if keyword == "series" and len(award) > i + 1:
             if award[
@@ -422,6 +427,38 @@ def all_nominees():
 # strategy to work on:
 # get candidate answers word by word: affleck + ben affleck + etc etc
 # get the most common candidate across all tweets
+
+
+### takes tweets and returns the sentiment scores of it
+### could be run on winner names? or on award names
+def sentiment_scores(tweets, name):
+    relevant = get_contains(tweets, name, None)
+    sia = SentimentIntensityAnalyzer()
+    neg_count = 1
+    pos_count = 1
+    neu_count = 1
+    total = 1
+    ###starting at 1 instead of 0, because i was coming across a bunch of division by 0 errors later if there just aren't enough tweets about something
+    for t in relevant:
+        sent_dict = sia.polarity_scores(t)
+        #print(sent_dict)
+        #### count the number of neg, pos, and neutral tweets
+        total += 1
+        if sent_dict['compound'] >= 0.36:
+            pos_count += 1
+        elif (sent_dict['compound'] >= -0.36) and (sent_dict['compound'] < 0.36):
+            neu_count += 1
+        else:
+            neg_count += 1
+    print('Sentiment about', name)
+    print('Tweets were ', pos_count/total*100, '% positive, ', neu_count/total*100, '% neutral, and ', neg_count/total*100, '% negative.')
+
+sentiment_scores(tweets, "hosts")
+sentiment_scores(tweets, "jessica chastain")
+
+#for winner in winner_names_from_awards(OFFICIAL_AWARDS_1315, tweets):
+ #   print(winner)
+  #  print(sentiment_scores(get_contains(tweets, winner, None)))
 
 
 1 + 1
