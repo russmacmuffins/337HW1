@@ -3,6 +3,64 @@ from award_reader import remove_banned
 import nltk
 import json
 nltk.download('averaged_perceptron_tagger')
+"""
+
+OFFICIAL_AWARDS_1315 = ['cecil b. demille award', 'best motion picture - drama',
+                        'best performance by an actress in a motion picture - drama',
+                        'best performance by an actor in a motion picture - drama',
+                        'best motion picture - comedy or musical',
+                        'best performance by an actress in a motion picture - comedy or musical',
+                        'best performance by an actor in a motion picture - comedy or musical',
+                        'best animated feature film', 'best foreign language film',
+                        'best performance by an actress in a supporting role in a motion picture',
+                        'best performance by an actor in a supporting role in a motion picture',
+                        'best director - motion picture', 'best screenplay - motion picture',
+                        'best original score - motion picture', 'best original song - motion picture',
+                        'best television series - drama',
+                        'best performance by an actress in a television series - drama',
+                        'best performance by an actor in a television series - drama',
+                        'best television series - comedy or musical',
+                        'best performance by an actress in a television series - comedy or musical',
+                        'best performance by an actor in a television series - comedy or musical',
+                        'best mini-series or motion picture made for television',
+                        'best performance by an actress in a mini-series or motion picture made for television',
+                        'best performance by an actor in a mini-series or motion picture made for television',
+                        'best performance by an actress in a supporting role in a series, mini-series or motion picture made for television',
+                        'best performance by an actor in a supporting role in a series, mini-series or motion picture made for television']
+
+
+
+
+def get_tweets_caps(pathname):
+    tweets = []
+    with open(pathname, 'r') as f:
+        data = json.load(f)
+
+    for i in range(len(data)):
+        t = data[i]['text']
+        tweets.append(t)
+
+    return tweets
+
+
+def clean_noms(noms):
+  new = []
+  for i in noms:
+    if i.find(" rt ") != -1 or i.find(" rt") != -1 or i[0:3] == "rt ": 
+      continue
+    new.append(i)
+  return new
+
+
+
+def run():
+    tweets = get_tweets_caps("gg2013.json")
+    relevant = get_contains(tweets," present","best")
+    1+1
+
+run()
+
+"""
 
 OFFICIAL_AWARDS_1315 = ['cecil b. demille award', 'best motion picture - drama',
                         'best performance by an actress in a motion picture - drama',
@@ -40,7 +98,7 @@ def get_tweets_caps(pathname):
 
     return tweets
 
-#tweets = get_tweets_caps("gg2013.json")
+
 
 def clean_noms(noms):
   new = []
@@ -154,8 +212,9 @@ def get_award_noms(award, tweets):
 
 def get_nom(tweets, awards):
   noms = []
-  relevant = get_contains(tweets," nom", "goldenglobes")
+  relevant = get_contains(tweets,"present", "goldenglobes")
   noms.extend(relevant)
+  """
   relevant = get_contains(tweets," should have", "goldenglobes")
   noms.extend(relevant)
   relevant = get_contains(tweets," lost", "goldenglobes")
@@ -164,16 +223,14 @@ def get_nom(tweets, awards):
   noms.extend(relevant)
   relevant = get_contains(tweets," snubbed", "goldenglobes")
   noms.extend(relevant)
-  relevant = get_contains(tweets," hoping", "goldenglobes")
-  noms.extend(relevant)
-  relevant = get_contains(tweets," rooting for", "goldenglobes")
-  noms.extend(relevant)
+  """
   final = {}
   for i in awards:
     temp = get_award_noms(i, noms)
     final[i] = temp
-  # print(final)
+  print(final)
   return final
 
 
-#get_nom(tweets, OFFICIAL_AWARDS_1315)
+tweets = get_tweets_caps("gg2013.json")
+get_nom(tweets, OFFICIAL_AWARDS_1315)
