@@ -2,6 +2,7 @@ from json_reader import *
 from award_reader import awards_get
 from pprint import pprint
 from nominator import *
+from dressed import *
 '''Version 0.3'''
 import json
 
@@ -17,6 +18,13 @@ def get_answers(year):
     with open('gg%sanswers.json'%year, 'r') as f:
         fres = json.load(f)
     return fres
+
+def get_best_dressed(year):
+    tweets = get_tweets_caps("gg" + year + ".json")
+    best_worst = best_dressed(tweets)
+    best, worst = best_worst
+    return best, worst
+# print(get_best_dressed("2015"))
 
 def get_hosts(year):
     '''Hosts is a list of one or more strings. Do NOT change the name
@@ -82,6 +90,7 @@ def main():
     # f = open("human_readable_answers.txt", "w")
     overall = ["hosts", "awards"]
     specific = ["nominees", "presenters", "winner"]
+    extras = ["Best Dressed", "Worst Dressed"]
     d = {}
     
     years = {"2013"}#, "2015"}
@@ -104,6 +113,10 @@ def main():
             else: d[cat.title()] = results.title()
             # f.write( )
         
+        best, worst = get_best_dressed(year)
+        print("\nBest Dressed: %s" % best)
+        print("Worst Dressed: %s" % worst)
+        
         for award in OFFICIAL_AWARDS:
             print('\nAward: %s' % award.title())
             d[award.title()] = {}
@@ -120,7 +133,7 @@ def main():
                     d[award.title()][cat.title()] = results.title()
                 print('%s: %s' % (cat.title(), results.title()) )
                 
-    print(json.dumps(d))
+    # print(json.dumps(d))
 
     return
 
