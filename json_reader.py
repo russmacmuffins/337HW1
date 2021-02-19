@@ -1,8 +1,10 @@
 import json
 import nltk
 import string
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
 
 nltk.download('stopwords')
+nltk.download('vader_lexicon')
 from nltk.corpus import stopwords
 
 stop_words = set(stopwords.words('english'))
@@ -425,6 +427,38 @@ def all_nominees():
 # strategy to work on:
 # get candidate answers word by word: affleck + ben affleck + etc etc
 # get the most common candidate across all tweets
+
+
+### takes tweets and returns the sentiment scores of it
+### could be run on winner names? or on award names
+def sentiment_scores(tweets, name):
+    relevant = get_contains(tweets, name, None)
+    sia = SentimentIntensityAnalyzer()
+    neg_count = 1
+    pos_count = 1
+    neu_count = 1
+    total = 1
+    ###starting at 1 instead of 0, because i was coming across a bunch of division by 0 errors later if there just aren't enough tweets about something
+    for t in relevant:
+        sent_dict = sia.polarity_scores(t)
+        #print(sent_dict)
+        #### count the number of neg, pos, and neutral tweets
+        total += 1
+        if sent_dict['compound'] >= 0.36:
+            pos_count += 1
+        elif (sent_dict['compound'] >= -0.36) and (sent_dict['compound'] < 0.36):
+            neu_count += 1
+        else:
+            neg_count += 1
+    print('Sentiment about', name)
+    print('Tweets were ', pos_count/total*100, '% positive, ', neu_count/total*100, '% neutral, and ', neg_count/total*100, '% negative.')
+
+sentiment_scores(tweets, "hosts")
+sentiment_scores(tweets, "jessica chastain")
+
+#for winner in winner_names_from_awards(OFFICIAL_AWARDS_1315, tweets):
+ #   print(winner)
+  #  print(sentiment_scores(get_contains(tweets, winner, None)))
 
 
 1 + 1
