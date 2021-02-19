@@ -164,6 +164,10 @@ def get_nom(tweets, awards):
   noms.extend(relevant)
   relevant = get_contains(tweets," snubbed", "goldenglobes")
   noms.extend(relevant)
+  relevant = get_contains(tweets," hoping", "goldenglobes")
+  noms.extend(relevant)
+  relevant = get_contains(tweets," rooting for", "goldenglobes")
+  noms.extend(relevant)
   final = {}
   for i in awards:
     temp = get_award_noms(i, noms)
