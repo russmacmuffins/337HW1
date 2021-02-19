@@ -3,6 +3,7 @@ from award_reader import awards_get
 from pprint import pprint
 from nominator import *
 from dressed import *
+from presenter import get_tweets_caps, get_pres
 '''Version 0.3'''
 import json
 
