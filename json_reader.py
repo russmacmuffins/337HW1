@@ -82,7 +82,7 @@ def get_tweets(pathname):
 
 
 tweets = get_tweets('gg2013.json')
-tweets15 = get_tweets('gg2015.json')
+#tweets15 = get_tweets('gg2015.json')
 
 
 def tokenize(tweet):
