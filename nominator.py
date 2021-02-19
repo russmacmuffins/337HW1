@@ -110,7 +110,7 @@ def get_actor_noms(usable):
   sorter = sorted(out, key=out.get, reverse=True)
   refilter(sorter)
 #print(sorter[:5])
-  return sorter[:5]
+  return sorter[:4]
 
 def get_film_noms(usable, keys):
   out = {}
