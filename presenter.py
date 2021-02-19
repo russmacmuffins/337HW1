@@ -198,7 +198,7 @@ def get_award_pres(award, tweets):
 
 def get_pres(tweets, awards):
   pres = []
-  relevant = get_contains(tweets,"present", "goldenglobes")
+  relevant = get_contains(tweets,"present",None)
   pres.extend(relevant)
   """
   relevant = get_contains(tweets," should have", "goldenglobes")
