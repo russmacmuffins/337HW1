@@ -27,6 +27,10 @@ def get_best_dressed(year):
     return best, worst
 # print(get_best_dressed("2015"))
 
+def get_sentiment(year, name):
+    tweets = get_tweet_from_year(year)
+    return sentiment_scores(tweets, name)
+
 def get_hosts(year):
     '''Hosts is a list of one or more strings. Do NOT change the name
     of this function or what it returns.'''
@@ -111,11 +115,18 @@ def main():
         for cat in overall:
             results = globals()['get_%s' % cat](year)
             pprint('%s: %s' % (cat.title(), ', '.join(results).title()) )
+            if cat == "hosts":
+                if isinstance(results, list):
+                    for host in results:
+                        get_sentiment(year, host)
+                else: get_sentiment(year, results)
+
+
             if isinstance(results, list): 
                 d[cat.title()] = [res.title() for res in results]
             else: d[cat.title()] = results.title()
             # f.write( )
-        
+
         best, worst = get_best_dressed(year)
         print("\nBest Dressed: %s" % best)
         print("Worst Dressed: %s" % worst)
@@ -135,6 +146,8 @@ def main():
                 else: 
                     d[award.title()][cat.title()] = results.title()
                 print('%s: %s' % (cat.title(), results.title()) )
+                if cat == "winner" and len(results) > 3:
+                    print(get_sentiment(year, results))
                 
     # print(json.dumps(d))
 

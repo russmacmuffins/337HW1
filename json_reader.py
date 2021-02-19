@@ -447,11 +447,11 @@ def sentiment_scores(tweets, name):
             neu_count += 1
         else:
             neg_count += 1
-    print('Sentiment about', name)
+    print('Sentiment about', name.title())
     print('Tweets were ', pos_count/total*100, '% positive, ', neu_count/total*100, '% neutral, and ', neg_count/total*100, '% negative.')
 
-sentiment_scores(tweets, "hosts")
-sentiment_scores(tweets, "jessica chastain")
+# sentiment_scores(tweets, "hosts")
+# sentiment_scores(tweets, "jessica chastain")
 
 #for winner in winner_names_from_awards(OFFICIAL_AWARDS_1315, tweets):
  #   print(winner)

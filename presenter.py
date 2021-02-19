@@ -213,9 +213,9 @@ def get_pres(tweets, awards):
   for i in awards:
     temp = get_award_pres(i, pres)
     final[i] = temp
-  print(final)
+  #print(final)
   return final
 
 
 tweets = get_tweets_caps("gg2013.json")
-get_pres(tweets, OFFICIAL_AWARDS_1315)
+# get_pres(tweets, OFFICIAL_AWARDS_1315)

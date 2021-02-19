@@ -56,6 +56,6 @@ def best_dressed(tweets):
   for i in range(len(sorter) -1, -1, -1):
     if len(sorter[i]) < 4 or sorter[i] == "None":
       sorter.pop(i)
-  print(sorter)
+  #print(sorter)
   return (sorter[0], sorter[-1])
 
