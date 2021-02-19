@@ -2,7 +2,6 @@ from json_reader import get_tweets, get_contains, get_most_common
 from award_reader import remove_banned
 import nltk
 import json
-nltk.download('averaged_perceptron_tagger')
 """
 OFFICIAL_AWARDS_1315 = ['cecil b. demille award', 'best motion picture - drama',
                         'best performance by an actress in a motion picture - drama',

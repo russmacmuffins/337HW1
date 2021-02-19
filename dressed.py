@@ -5,8 +5,6 @@ import json
 from nominator import get_tweets_caps
 nltk.download('averaged_perceptron_tagger')
 
-tweets2 = get_tweets_caps("gg2013.json")
-
 def find_look(words):
   for i in range(len(words)):
     if words[i][0] == "looks":
@@ -20,8 +18,8 @@ def get_person(tweet):
   anchor = find_look(split)
   name = ""
   for i in range(anchor, -1, -1):
-    if split[i][1] == "NNP":
-      name = split[i][0] + name
+    if split[i][1] == "NNP" and split[i][0] != "@":
+      name = split[i][0] + " " + name
       start = True
     elif start:
       return name
@@ -30,7 +28,7 @@ def get_person(tweet):
 
 def get_intent(tweet):
   positive_bank = set(["great", "good", "sexy", "amazing", "stunning", "fine", "gorgeous", "GOOD", "nice", "fantastic"])
-  negative_bank = set(["terrible", "bad", "ugly", "sad"])
+  negative_bank = set(["terrible", "bad", "ugly", "sad", "uncomfortable", "messy"])
   split = nltk.word_tokenize(tweet)
   split = nltk.pos_tag(split)
   anchor = find_look(split)
@@ -55,7 +53,9 @@ def best_dressed(tweets):
     else:
       fin[get_person(i)] = get_intent(i)
   sorter = sorted(fin, key=fin.get, reverse=True)
-  return (sorter[1], sorter[-1])
+  for i in range(len(sorter) -1, -1, -1):
+    if len(sorter[i]) < 4 or sorter[i] == "None":
+      sorter.pop(i)
+  print(sorter)
+  return (sorter[0], sorter[-1])
 
-
-best_dressed(tweets2)

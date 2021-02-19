@@ -1,9 +1,7 @@
 from json_reader import get_tweets, get_contains, get_most_common
 import nltk
-nltk.download('punkt')
 from nltk.collocations import *
 from nltk import ngrams
-from collections import Counter
 
 #removes all words before the word for (inc)
 def clean_awards(awards):
@@ -36,20 +34,6 @@ def filter_noise(awards):
         lowest = temp
     new.append(awards[i][:lowest])
   return new
-
-
-def count_common(awards):
-  temp = []
-  for i in awards:
-    base = i.split()
-    temp.extend(base)
-  bigram_measures = nltk.collocations.BigramAssocMeasures()
-  trigram_measures = nltk.collocations.TrigramAssocMeasures()
-  finder = TrigramCollocationFinder.from_words(temp)
-  finder.apply_freq_filter(2)
-  n = 6
-  sixgrams = ngrams(temp, n)
-  return Counter(sixgrams)
 
 def is_in(word1, word2):
   split1 = word1.split()
