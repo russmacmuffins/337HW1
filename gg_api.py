@@ -82,6 +82,7 @@ def main():
     # f = open("human_readable_answers.txt", "w")
     overall = ["hosts", "awards"]
     specific = ["nominees", "presenters", "winner"]
+    d = {}
     
     years = {"2013"}#, "2015"}
     new = input("Enter years to check, separated by a space. Ex: 2013 2015\n")
@@ -98,10 +99,14 @@ def main():
         for cat in overall:
             results = globals()['get_%s' % cat](year)
             pprint('%s: %s' % (cat.title(), ', '.join(results).title()) )
+            if isinstance(results, list): 
+                d[cat.title()] = [res.title() for res in results]
+            else: d[cat.title()] = results.title()
             # f.write( )
         
         for award in OFFICIAL_AWARDS:
             print('\nAward: %s' % award.title())
+            d[award.title()] = {}
             person = False
             if any(job in award for job in ("actor", "actress", "director")):
                 person = True
@@ -109,11 +114,13 @@ def main():
             for cat in specific:
                 results = locals()['gg_%s' % cat][award]
                 if isinstance(results, list): 
+                    d[award.title()][cat.title()] = [res.title() for res in results]
                     results = ', '.join(results)
+                else: 
+                    d[award.title()][cat.title()] = results.title()
                 print('%s: %s' % (cat.title(), results.title()) )
-
-        
-            
+                
+    print(json.dumps(d))
 
     return
 
