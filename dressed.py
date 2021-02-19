@@ -5,6 +5,9 @@ import json
 from nominator import get_tweets_caps
 nltk.download('averaged_perceptron_tagger')
 
+tweets2 = get_tweets_caps("gg2013.json")
+tweets3 = get_tweets_caps("gg2015.json")
+
 def find_look(words):
   for i in range(len(words)):
     if words[i][0] == "looks":
@@ -18,7 +21,7 @@ def get_person(tweet):
   anchor = find_look(split)
   name = ""
   for i in range(anchor, -1, -1):
-    if split[i][1] == "NNP" and split[i][0] != "@":
+    if split[i][1] == "NNP":
       name = split[i][0] + " " + name
       start = True
     elif start:
@@ -56,6 +59,8 @@ def best_dressed(tweets):
   for i in range(len(sorter) -1, -1, -1):
     if len(sorter[i]) < 4 or sorter[i] == "None":
       sorter.pop(i)
-  #print(sorter)
+  print(sorter[0], sorter[-1])
   return (sorter[0], sorter[-1])
 
+best_dressed(tweets2)
+best_dressed(tweets3)

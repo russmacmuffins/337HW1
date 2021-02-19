@@ -44,7 +44,7 @@ def get_tweets_caps(pathname):
 def clean_noms(noms):
   new = []
   for i in noms:
-    if i.find(" rt ") != -1 or i.find(" rt") != -1 or i[0:3] == "rt ": 
+    if i.find(" rt ") != -1 or i.find(" rt") != -1 or i[0:3] == "rt ":
       continue
     new.append(i)
   return new
@@ -147,8 +147,8 @@ def get_award_noms(award, tweets):
     if boll:
       usable.append(i)
   return get_actor_noms(usable)
-    
-    
+
+
 
 
 def get_nom(tweets, awards):
@@ -166,6 +166,16 @@ def get_nom(tweets, awards):
   relevant = get_contains(tweets," hoping", "goldenglobes")
   noms.extend(relevant)
   relevant = get_contains(tweets," rooting for", "goldenglobes")
+  noms.extend(relevant)
+  relevant = get_contains(tweets,"n't win", "goldenglobes")
+  noms.extend(relevant)
+  relevant = get_contains(tweets," could win", "goldenglobes")
+  noms.extend(relevant)
+  relevant = get_contains(tweets," will win", "goldenglobes")
+  noms.extend(relevant)
+  relevant = get_contains(tweets," could go to", "goldenglobes")
+  noms.extend(relevant)
+  relevant = get_contains(tweets," will go to", "goldenglobes")
   noms.extend(relevant)
   final = {}
   for i in awards:
