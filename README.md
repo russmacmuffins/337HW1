@@ -10,3 +10,7 @@ In order to run this file:
 3. call python gg_api.py to return a human readable text file of the output
 
 note: If you would like to read the output in a JSON format, if you uncomment line 152 of the gg_api.py file before you run it, the function will print out the output in that format. 
+
+The GitHub repository for this project is: 
+
+https://github.com/russmacmuffins/337HW1
