@@ -3,7 +3,7 @@ Golden Globe Project Master
 
 In order to run this file:
 
-1. call pip install -requirements.txt to download required packages
+1. call pip install -r requirements.txt to download required packages
 
 2. call python autograder.py to return the autograder output with the corresponding scores
 

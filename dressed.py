@@ -3,7 +3,6 @@ from award_reader import remove_banned
 import nltk
 import json
 from nominator import get_tweets_caps
-nltk.download('averaged_perceptron_tagger')
 
 tweets2 = get_tweets_caps("gg2013.json")
 tweets3 = get_tweets_caps("gg2015.json")
