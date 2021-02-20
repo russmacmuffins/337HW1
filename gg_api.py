@@ -147,7 +147,7 @@ def main():
                     d[award.title()][cat.title()] = results.title()
                 print('%s: %s' % (cat.title(), results.title()) )
                 if cat == "winner" and len(results) > 3:
-                    print(get_sentiment(year, results))
+                    get_sentiment(year, results)
                 
     # print(json.dumps(d))
 
